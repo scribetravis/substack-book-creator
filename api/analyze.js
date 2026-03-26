@@ -8,7 +8,7 @@ module.exports = async function handler(req, res) {
   const ANTHROPIC_KEY = process.env.ANTHROPIC_API_KEY;
   if (!ANTHROPIC_KEY) return res.status(500).json({ error: 'LLM not configured' });
 
-  const { mode, posts, authorName, linkedinText, chosenDirection } = req.body;
+  const { mode, posts, authorName, linkedinText, chosenDirection, authorAnswers } = req.body;
 
   if (!mode || !posts) {
     return res.status(400).json({ error: 'mode and posts are required' });
@@ -25,7 +25,7 @@ module.exports = async function handler(req, res) {
       userPrompt = buildNorthStarPrompt(posts, authorName, linkedinText);
     } else if (mode === 'roadmap') {
       systemPrompt = SCRIBE_SYSTEM_PROMPT;
-      userPrompt = buildRoadmapPrompt(posts, authorName, chosenDirection);
+      userPrompt = buildRoadmapPrompt(posts, authorName, chosenDirection, authorAnswers);
     } else {
       return res.status(400).json({ error: 'Invalid mode. Use: themes, northstar, or roadmap' });
     }
@@ -180,39 +180,56 @@ Respond in JSON format:
 }`;
 }
 
-function buildRoadmapPrompt(posts, authorName, chosenDirection) {
-  // For roadmap, use fuller post content (top 10 most relevant)
-  const postContent = posts.slice(0, 15).map(p =>
+function buildRoadmapPrompt(posts, authorName, chosenDirection, authorAnswers) {
+  // Use ALL posts for roadmap analysis
+  const postContent = posts.map(p =>
     `POST: "${p.title}" (${p.date})\n${p.fullText || p.preview}`
   ).join('\n\n---\n\n');
 
+  const aa = authorAnswers || {};
+
   return `AUTHOR: ${authorName || 'Unknown'}
 
-CHOSEN NORTH STAR DIRECTION:
-Title: ${chosenDirection.bookTitle}
-Subtitle: ${chosenDirection.subtitle}
-Objective: ${chosenDirection.bookObjective}
-Target Reader: ${chosenDirection.targetReader}
-Author Positioning: ${chosenDirection.authorPositioning}
+THE AUTHOR'S OWN NORTH STAR ANSWERS (these are their words — respect them):
+- Target Reader (one person): ${aa.targetReader || chosenDirection.targetReader || 'Not specified'}
+- Champagne Moment: ${aa.champagneMoment || 'Not specified'}
+- How the book serves the reader: ${aa.readerGain || 'Not specified'}
+- Selfish reason for writing: ${aa.selfishReason || 'Not specified'}
+- Unselfish reason for writing: ${aa.unselfishReason || 'Not specified'}
+- Working Title: ${aa.workingTitle || 'None provided — suggest titles'}
+- Working Subtitle: ${aa.workingSubtitle || 'None provided — suggest subtitles'}
+- Cocktail Party Pitch: ${aa.cocktailPitch || 'Not specified'}
+
+AI ANALYSIS CONTEXT:
+Author Positioning: ${chosenDirection.authorPositioning || 'Determined from content'}
 
 AUTHOR'S CONTENT (${posts.length} posts):
 
 ${postContent}
 
-TASK: Generate a detailed Chapter Roadmap using the Scribe Method. Map existing content to chapters, identify what's new, and score the book's readiness.
+TASK: Generate a detailed Chapter Roadmap using the Scribe Method. The roadmap MUST honor the author's own answers above — do not override their target reader, champagne moment, or reasons.
+
+CRITICAL RULES:
+1. If the author provided a working title, use it as the primary title. You may suggest alternatives, but their title comes first.
+2. The target reader description must match what the author wrote — do not generalize it.
+3. The North Star statement must weave together the author's own words about their reader, their reasons, and their champagne moment.
+4. Reference SPECIFIC post titles when mapping content to chapters.
+5. NEVER invent content that doesn't exist in the posts.
 
 Respond in JSON format:
 {
   "proposedTitles": [
-    { "title": "Title option", "subtitle": "Subtitle option" }
+    { "title": "Title option (author's title first if provided)", "subtitle": "Subtitle option" }
   ],
+  "northStarStatement": "A single compelling sentence weaving together the author's target reader, book idea, and objectives — built from THEIR words",
+  "authorPositioning": "Why this specific author is the one to write this book (2-3 sentences referencing their actual posts and expertise)",
   "chapters": [
     {
       "number": 1,
       "title": "Chapter title",
       "summary": "What this chapter covers and its purpose in the book's argument (2-3 sentences)",
-      "existingPosts": ["Post titles that map to this chapter"],
-      "newContentNeeded": "What additional content the author would need to create (1-2 sentences)",
+      "existingPosts": ["Exact post titles that map to this chapter"],
+      "newContentNeeded": "What additional content the author would need to create (1-2 sentences, or null if fully covered)",
       "hasExistingContent": true
     }
   ],
@@ -222,11 +239,11 @@ Respond in JSON format:
   },
   "scribeScore": {
     "contentDepth": { "score": 7, "explanation": "Explanation citing specific posts" },
-    "audienceClarity": { "score": 7, "explanation": "Explanation citing specific evidence" },
+    "audienceClarity": { "score": 7, "explanation": "Explanation citing specific evidence from the author's answers" },
     "uniquePerspective": { "score": 7, "explanation": "Explanation citing specific posts" },
     "bookReadiness": { "score": 7, "explanation": "Overall assessment" }
   },
   "contentCoveragePercent": 65,
-  "coachNote": "A warm, specific note from a Scribe Book Coach to this author about what excites you about their book potential. Reference their specific content. 3-4 sentences. This should feel personal, not generic."
+  "coachNote": "A warm, specific note from a Scribe Book Coach to this author about what excites you about their book potential. Reference their specific content and their answers. 3-4 sentences. This should feel personal, not generic."
 }`;
 }
