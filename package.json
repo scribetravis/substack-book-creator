@@ -1,0 +1,9 @@
+{
+  "name": "substack-book-creator",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Scribe Media lead magnet — analyzes Substack content using the Scribe Method to generate North Star + Chapter Roadmap",
+  "dependencies": {
+    "fast-xml-parser": "^4.5.0"
+  }
+}

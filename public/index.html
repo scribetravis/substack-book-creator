@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Discover Your Book — Scribe Media</title>
+  <meta name="description" content="See what your newsletter could become as a book. Free assessment using the Scribe Method, the framework behind 2,000+ published nonfiction books.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.0.3/src/regular/style.css">
+  <style>
+    :root {
+      --gold: #C9A84C;
+      --gold-light: #D4B35A;
+      --gold-dim: rgba(201,168,76,0.12);
+      --gold-glow: rgba(201,168,76,0.25);
+      --bg: #0D0D0D;
+      --bg-card: #161616;
+      --bg-elevated: #1C1C1C;
+      --bg-input: #1A1A1A;
+      --border: rgba(255,255,255,0.08);
+      --border-focus: rgba(201,168,76,0.4);
+      --text: #F0F0F0;
+      --text-secondary: #A0A0A0;
+      --text-dim: #666666;
+      --green: #5CB85C;
+      --red: #D9534F;
+      --serif: 'EB Garamond', Georgia, serif;
+      --sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      --ease: cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body { font-family: var(--sans); background: var(--bg); color: var(--text); line-height: 1.6; min-height: 100vh; -webkit-font-smoothing: antialiased; }
+
+    /* ── HEADER ── */
+    .header { position: fixed; top: 0; left: 0; right: 0; z-index: 100; background: rgba(13,13,13,0.9); backdrop-filter: blur(20px); border-bottom: 1px solid var(--border); padding: 14px 32px; display: flex; align-items: center; justify-content: space-between; }
+    .header img { height: 36px; }
+    .header-right { display: flex; align-items: center; gap: 16px; }
+    .step-indicator { font-size: 11px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1.5px; }
+    .step-indicator .current { color: var(--gold); }
+
+    /* ── FULL-SCREEN STEPS ── */
+    .step { display: none; min-height: 100vh; padding: 100px 24px 60px; }
+    .step.active { display: flex; align-items: center; justify-content: center; animation: stepIn 0.6s var(--ease); }
+    @keyframes stepIn { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+    .step-inner { max-width: 640px; width: 100%; }
+
+    /* ── HERO ── */
+    .hero { text-align: center; }
+    .hero-eyebrow { display: inline-flex; align-items: center; gap: 8px; font-size: 11px; color: var(--gold); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 32px; }
+    .hero-eyebrow::before, .hero-eyebrow::after { content: ''; width: 32px; height: 1px; background: var(--gold); opacity: 0.4; }
+    .hero h1 { font-family: var(--serif); font-size: 3.2rem; font-weight: 500; line-height: 1.15; margin-bottom: 20px; letter-spacing: -0.02em; }
+    .hero h1 em { font-style: italic; color: var(--gold); }
+    .hero .hero-sub { font-size: 17px; color: var(--text-secondary); max-width: 480px; margin: 0 auto 48px; line-height: 1.7; font-weight: 300; }
+    .hero-form { text-align: left; background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; padding: 36px; }
+    .hero-form h3 { font-family: var(--serif); font-size: 1.3rem; margin-bottom: 24px; font-weight: 500; }
+
+    /* ── FORM ELEMENTS ── */
+    .field { margin-bottom: 20px; }
+    .field label { display: block; font-size: 13px; font-weight: 500; margin-bottom: 6px; color: var(--text); }
+    .field .hint { color: var(--text-dim); font-weight: 400; font-size: 12px; }
+    .field .optional { color: var(--text-dim); font-weight: 400; }
+    input, textarea, select { width: 100%; padding: 14px 16px; background: var(--bg-input); border: 1px solid var(--border); border-radius: 10px; color: var(--text); font-family: var(--sans); font-size: 15px; transition: border-color 0.2s; }
+    input:focus, textarea:focus, select:focus { outline: none; border-color: var(--gold); box-shadow: 0 0 0 3px var(--gold-dim); }
+    input::placeholder, textarea::placeholder { color: var(--text-dim); }
+    textarea { resize: vertical; min-height: 80px; }
+
+    /* ── BUTTONS ── */
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 10px; padding: 16px 32px; border-radius: 12px; font-family: var(--sans); font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.25s var(--ease); border: none; text-decoration: none; }
+    .btn-primary { background: var(--gold); color: #111; width: 100%; }
+    .btn-primary:hover { background: var(--gold-light); transform: translateY(-1px); box-shadow: 0 8px 24px rgba(201,168,76,0.25); }
+    .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; transform: none; box-shadow: none; }
+    .btn-secondary { background: transparent; color: var(--text); border: 1px solid var(--border); }
+    .btn-secondary:hover { border-color: var(--gold); color: var(--gold); }
+    .btn-ghost { background: none; border: none; color: var(--text-secondary); font-size: 13px; cursor: pointer; padding: 8px 16px; }
+    .btn-ghost:hover { color: var(--gold); }
+
+    /* ── QUESTION STEPS ── */
+    .q-step { text-align: center; }
+    .q-badge { display: inline-flex; align-items: center; gap: 6px; font-size: 10px; color: var(--gold); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 24px; padding: 6px 16px; border: 1px solid var(--gold-dim); border-radius: 100px; background: var(--gold-dim); }
+    .q-step h2 { font-family: var(--serif); font-size: 2.4rem; font-weight: 500; line-height: 1.2; margin-bottom: 16px; letter-spacing: -0.01em; }
+    .q-step .q-desc { font-size: 16px; color: var(--text-secondary); max-width: 520px; margin: 0 auto 36px; line-height: 1.7; font-weight: 300; }
+
+    /* ── OPTION CARDS ── */
+    .option-cards { display: flex; flex-direction: column; gap: 12px; margin-bottom: 32px; text-align: left; }
+    .option-card { background: var(--bg-card); border: 2px solid var(--border); border-radius: 14px; padding: 20px 24px; cursor: pointer; transition: all 0.2s var(--ease); display: flex; align-items: flex-start; gap: 16px; }
+    .option-card:hover { border-color: rgba(201,168,76,0.3); background: var(--bg-elevated); }
+    .option-card.selected { border-color: var(--gold); background: var(--gold-dim); }
+    .option-card .radio { width: 22px; height: 22px; border: 2px solid var(--border); border-radius: 50%; flex-shrink: 0; margin-top: 2px; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+    .option-card.selected .radio { border-color: var(--gold); }
+    .option-card.selected .radio::after { content: ''; width: 10px; height: 10px; background: var(--gold); border-radius: 50%; }
+    .option-card .option-text h4 { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+    .option-card .option-text p { font-size: 13px; color: var(--text-secondary); line-height: 1.5; }
+
+    /* ── TEXT INPUT IN QUESTION ── */
+    .q-input { text-align: left; margin-bottom: 32px; }
+    .q-input textarea { font-size: 17px; padding: 20px; min-height: 120px; line-height: 1.6; background: var(--bg-card); border-radius: 14px; }
+
+    /* ── LOADING ── */
+    .loading-step { text-align: center; }
+    .loading-ring { width: 64px; height: 64px; border: 2px solid var(--border); border-top-color: var(--gold); border-radius: 50%; animation: spin 1.2s linear infinite; margin: 0 auto 32px; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loading-step h2 { font-family: var(--serif); font-size: 1.8rem; font-weight: 500; margin-bottom: 12px; }
+    .loading-step .loading-sub { color: var(--text-secondary); font-size: 15px; }
+    .loading-step .loading-detail { color: var(--gold); font-size: 14px; margin-top: 8px; }
+    .progress-dots { display: flex; gap: 8px; justify-content: center; margin-top: 32px; }
+    .progress-dots .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--border); transition: all 0.3s; }
+    .progress-dots .dot.done { background: var(--gold); }
+    .progress-dots .dot.active { background: var(--gold); animation: pulse 1.5s infinite; }
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+    /* ── NORTH STAR REVEAL ── */
+    .ns-reveal { text-align: center; }
+    .ns-statement { font-family: var(--serif); font-size: 1.6rem; font-style: italic; line-height: 1.6; color: var(--gold); background: var(--gold-dim); border-left: 3px solid var(--gold); border-radius: 0 14px 14px 0; padding: 32px; margin: 32px 0; text-align: left; }
+    .ns-details { text-align: left; display: grid; gap: 16px; margin: 24px 0 32px; }
+    .ns-detail-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; }
+    .ns-detail-card .ns-label { font-size: 10px; text-transform: uppercase; letter-spacing: 1.5px; color: var(--gold); margin-bottom: 8px; }
+    .ns-detail-card p { font-size: 14px; color: var(--text-secondary); line-height: 1.6; }
+
+    /* ── CHAPTER ROADMAP ── */
+    .chapter-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 14px; padding: 24px; margin-bottom: 14px; transition: all 0.2s; }
+    .chapter-card:hover { border-color: rgba(255,255,255,0.12); }
+    .ch-num { font-size: 10px; text-transform: uppercase; letter-spacing: 2px; color: var(--gold); margin-bottom: 6px; }
+    .ch-title { font-family: var(--serif); font-size: 1.2rem; font-weight: 600; margin-bottom: 8px; }
+    .ch-summary { font-size: 14px; color: var(--text-secondary); line-height: 1.6; margin-bottom: 12px; }
+    .ch-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+    .ch-tag { font-size: 11px; padding: 4px 12px; border-radius: 100px; }
+    .ch-tag--existing { background: var(--gold-dim); color: var(--gold); }
+    .ch-tag--new { background: rgba(217,83,79,0.12); color: var(--red); }
+
+    /* ── SCORE SECTION ── */
+    .score-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 24px 0; }
+    .score-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 14px; padding: 24px; text-align: center; }
+    .score-num { font-family: var(--serif); font-size: 2.8rem; font-weight: 600; color: var(--gold); line-height: 1; }
+    .score-name { font-size: 10px; text-transform: uppercase; letter-spacing: 1.5px; color: var(--text-dim); margin: 8px 0 12px; }
+    .score-desc { font-size: 12px; color: var(--text-secondary); line-height: 1.5; }
+
+    /* ── COVERAGE ── */
+    .coverage { background: var(--bg-card); border: 1px solid var(--border); border-radius: 14px; padding: 24px; margin: 24px 0; }
+    .coverage-header { display: flex; justify-content: space-between; margin-bottom: 12px; }
+    .coverage-header span:last-child { color: var(--gold); font-weight: 700; font-size: 1.2rem; }
+    .coverage-bar { height: 8px; background: var(--border); border-radius: 4px; overflow: hidden; }
+    .coverage-fill { height: 100%; background: linear-gradient(90deg, var(--gold), var(--gold-light)); border-radius: 4px; transition: width 1.5s var(--ease); }
+    .coverage-meta { display: flex; justify-content: space-between; font-size: 12px; color: var(--text-dim); margin-top: 8px; }
+
+    /* ── COACH NOTE ── */
+    .coach-note { background: var(--gold-dim); border-left: 3px solid var(--gold); border-radius: 0 14px 14px 0; padding: 28px; margin: 32px 0; }
+    .coach-note p { font-family: var(--serif); font-size: 1.05rem; font-style: italic; line-height: 1.8; color: var(--text); }
+    .coach-note .sig { display: block; font-style: normal; font-family: var(--sans); font-size: 11px; color: var(--gold); text-transform: uppercase; letter-spacing: 1.5px; margin-top: 16px; }
+
+    /* ── CTA ── */
+    .cta-box { background: var(--bg-card); border: 2px solid var(--gold); border-radius: 16px; padding: 40px 32px; text-align: center; margin: 48px 0; }
+    .cta-box h2 { font-family: var(--serif); font-size: 1.8rem; color: var(--gold); margin-bottom: 16px; font-weight: 500; }
+    .cta-box p { color: var(--text-secondary); font-size: 15px; line-height: 1.7; margin-bottom: 12px; }
+    .cta-box .service-desc { text-align: left; font-size: 14px; color: var(--text-secondary); margin: 20px 0 28px; line-height: 1.8; }
+    .cta-box .service-desc strong { color: var(--gold); }
+    .cta-btns { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+    .cta-btns .btn { flex: 1; min-width: 200px; }
+
+    /* ── SCRIBE METHOD CALLOUT ── */
+    .method-tip { background: var(--bg-card); border: 1px solid var(--border); border-radius: 14px; padding: 20px 24px; margin: 28px 0; display: flex; gap: 16px; align-items: flex-start; }
+    .method-tip .tip-icon { color: var(--gold); font-size: 22px; flex-shrink: 0; margin-top: 2px; }
+    .method-tip p { font-size: 13px; color: var(--text-secondary); line-height: 1.6; }
+    .method-tip strong { color: var(--gold); }
+
+    /* ── FOOTER ── */
+    .footer { text-align: center; padding: 40px 24px; border-top: 1px solid var(--border); margin-top: 60px; }
+    .footer a { color: var(--text-dim); text-decoration: none; font-size: 12px; }
+    .footer a:hover { color: var(--gold); }
+    .footer .sep { color: var(--text-dim); margin: 0 8px; }
+
+    /* ── ERROR ── */
+    .error-msg { background: rgba(217,83,79,0.1); border: 1px solid var(--red); border-radius: 10px; padding: 12px 16px; font-size: 13px; color: var(--red); display: none; margin: 16px 0; }
+    .error-msg.show { display: block; }
+
+    /* ── FINE PRINT ── */
+    .fine-print { font-size: 12px; color: var(--text-dim); text-align: center; margin-top: 40px; line-height: 1.6; }
+    .fine-print a { color: var(--gold); text-decoration: none; }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 640px) {
+      .hero h1 { font-size: 2.2rem; }
+      .q-step h2 { font-size: 1.8rem; }
+      .score-row { grid-template-columns: 1fr; }
+      .cta-btns { flex-direction: column; }
+      .step { padding: 80px 20px 40px; }
+      .hero-form { padding: 24px; }
+    }
+
+    /* ── HONEYPOT ── */
+    .hp { position: absolute; left: -9999px; top: -9999px; }
+  </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="header">
+  <a href="https://scribemedia.com"><img src="https://scribemedia.com/hubfs/Scribe%20Logo_Full%20Color_OnDark.png" alt="Scribe Media" height="36"></a>
+  <div class="header-right">
+    <div class="step-indicator" id="stepIndicator"><span class="current">Step 1</span> of 8</div>
+  </div>
+</header>
+
+<!-- ═══════════ STEP 1: HERO ═══════════ -->
+<section class="step active" id="step1">
+  <div class="step-inner hero">
+    <div class="hero-eyebrow">The Scribe Method</div>
+    <h1>Discover the <em>book</em> inside your newsletter</h1>
+    <p class="hero-sub">The framework behind 2,000+ published nonfiction books, applied to your content. In the next few minutes, you'll define your North Star — the same process our authors invest $44,000–$56,000 to experience.</p>
+    <div class="hero-form">
+      <h3>Let's start with you</h3>
+      <form id="intakeForm" onsubmit="return handleStep1(event)">
+        <div class="field">
+          <label>Your Name</label>
+          <input type="text" id="fName" required placeholder="First and last name">
+        </div>
+        <div class="field">
+          <label>Email <span class="hint">— we'll send your assessment here</span></label>
+          <input type="email" id="fEmail" required placeholder="you@example.com">
+        </div>
+        <div class="field">
+          <label>Your Substack URL</label>
+          <input type="url" id="fUrl" required placeholder="https://yourname.substack.com">
+        </div>
+        <div class="field">
+          <label>LinkedIn Headline + About <span class="optional">(optional)</span>
+            <span class="hint" style="display:block;">Paste it here — helps us understand your expertise</span>
+          </label>
+          <textarea id="fLinkedin" rows="2" placeholder="VP of Marketing at Acme Corp | Building the future of..."></textarea>
+        </div>
+        <div class="hp"><input type="text" name="website_url" id="hp" tabindex="-1" autocomplete="off"></div>
+        <div id="err1" class="error-msg"></div>
+        <button type="submit" class="btn btn-primary" id="btn1">Analyze My Newsletter <i class="ph ph-arrow-right"></i></button>
+        <p style="font-size:11px;color:var(--text-dim);text-align:center;margin-top:12px;">By submitting, you agree that Scribe Media may analyze your content using AI and contact you about our services.</p>
+      </form>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ STEP 2: ANALYZING ═══════════ -->
+<section class="step" id="step2">
+  <div class="step-inner loading-step">
+    <div class="loading-ring"></div>
+    <h2>Reading your newsletter...</h2>
+    <p class="loading-sub">We're applying the Scribe Method to your content</p>
+    <p class="loading-detail" id="loadingDetail">Fetching your posts...</p>
+    <div class="progress-dots">
+      <div class="dot active" id="dot1"></div>
+      <div class="dot" id="dot2"></div>
+      <div class="dot" id="dot3"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ STEP 3: NORTH STAR Q1 — TARGET READER ═══════════ -->
+<section class="step" id="step3">
+  <div class="step-inner q-step">
+    <div class="q-badge"><i class="ph ph-compass"></i> North Star — Question 1 of 4</div>
+    <h2>Who is the <em style="font-family:var(--serif);color:var(--gold);">one person</em> you're writing this for?</h2>
+    <p class="q-desc">In the Scribe Method, we don't write for "everyone." We write for one specific person. Picture them: what's their role, their situation, their struggle?</p>
+    <div class="option-cards" id="readerOptions"></div>
+    <div class="q-input">
+      <textarea id="customReader" placeholder="Or describe your ideal reader in your own words..." rows="3"></textarea>
+    </div>
+    <button class="btn btn-primary" id="btn3" onclick="handleQ1()">Next <i class="ph ph-arrow-right"></i></button>
+    <div class="method-tip">
+      <span class="tip-icon"><i class="ph ph-lightbulb"></i></span>
+      <p><strong>Scribe Method Tip:</strong> At Scribe, we spend an entire call defining your target reader. The more specific you are, the more powerful your book becomes. "Everyone" is not a reader — give us a name, a role, a pain point.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ STEP 4: NORTH STAR Q2 — CHAMPAGNE MOMENT ═══════════ -->
+<section class="step" id="step4">
+  <div class="step-inner q-step">
+    <div class="q-badge"><i class="ph ph-champagne"></i> North Star — Question 2 of 4</div>
+    <h2>What's your <em style="font-family:var(--serif);color:var(--gold);">Champagne Moment?</em></h2>
+    <p class="q-desc">Imagine your book is published and wildly successful. What single event happens that makes you crack open the champagne? Be specific — this becomes your North Star.</p>
+    <div class="option-cards" id="champagneOptions"></div>
+    <div class="q-input">
+      <textarea id="customChampagne" placeholder="Describe your champagne moment..." rows="3"></textarea>
+    </div>
+    <button class="btn btn-primary" id="btn4" onclick="handleQ2()">Next <i class="ph ph-arrow-right"></i></button>
+    <div class="method-tip">
+      <span class="tip-icon"><i class="ph ph-lightbulb"></i></span>
+      <p><strong>Scribe Method Tip:</strong> Your Champagne Moment is the single event you'd celebrate. It's not "selling copies" — it's something like "A CEO I admire emails me to say my book changed how they run their company." The more vivid, the better.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ STEP 5: NORTH STAR Q3 — READER'S TRANSFORMATION ═══════════ -->
+<section class="step" id="step5">
+  <div class="step-inner q-step">
+    <div class="q-badge"><i class="ph ph-heart"></i> North Star — Question 3 of 4</div>
+    <h2>What will your reader <em style="font-family:var(--serif);color:var(--gold);">gain</em> from this book?</h2>
+    <p class="q-desc">Think about the person you described. After they finish your book, what changes for them? What can they do, believe, or understand that they couldn't before?</p>
+    <div class="q-input">
+      <textarea id="readerGain" placeholder="After reading my book, they will..." rows="4"></textarea>
+    </div>
+    <button class="btn btn-primary" id="btn5" onclick="handleQ3()">Next <i class="ph ph-arrow-right"></i></button>
+    <div class="method-tip">
+      <span class="tip-icon"><i class="ph ph-lightbulb"></i></span>
+      <p><strong>Scribe Method Tip:</strong> The best books create a transformation in the reader. Not just information — a shift in how they see the world. What's the "before and after" for your reader?</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ STEP 6: NORTH STAR Q4 — YOUR OBJECTIVES ═══════════ -->
+<section class="step" id="step6">
+  <div class="step-inner q-step">
+    <div class="q-badge"><i class="ph ph-target"></i> North Star — Question 4 of 4</div>
+    <h2>What will <em style="font-family:var(--serif);color:var(--gold);">you</em> gain from this book?</h2>
+    <p class="q-desc">Be honest — your book should serve you too. What doors do you want it to open? Select all that apply.</p>
+    <div class="option-cards" id="objectiveOptions" style="margin-bottom:16px;"></div>
+    <div class="q-input">
+      <textarea id="customObjective" placeholder="Anything else you'd like your book to accomplish?" rows="2"></textarea>
+    </div>
+    <button class="btn btn-primary" id="btn6" onclick="handleQ4()">Build My North Star <i class="ph ph-arrow-right"></i></button>
+  </div>
+</section>
+
+<!-- ═══════════ STEP 7: NORTH STAR SYNTHESIS (LOADING) ═══════════ -->
+<section class="step" id="step7">
+  <div class="step-inner loading-step">
+    <div class="loading-ring"></div>
+    <h2>Defining your North Star...</h2>
+    <p class="loading-sub">Combining your answers with your content analysis</p>
+    <p class="loading-detail" id="loadingDetail2">Synthesizing your positioning...</p>
+  </div>
+</section>
+
+<!-- ═══════════ STEP 8: YOUR NORTH STAR + ROADMAP ═══════════ -->
+<section class="step" id="step8">
+  <div class="step-inner">
+    <div style="text-align:center;">
+      <div class="q-badge"><i class="ph ph-star"></i> Your North Star</div>
+      <h2 style="font-family:var(--serif);font-size:2.2rem;font-weight:500;margin-bottom:8px;" id="nsBookTitle"></h2>
+      <p style="font-family:var(--serif);font-style:italic;color:var(--text-secondary);font-size:1.1rem;margin-bottom:24px;" id="nsBookSubtitle"></p>
+    </div>
+    <div class="ns-statement" id="nsStatement"></div>
+    <div class="ns-details" id="nsDetails"></div>
+    <div class="method-tip">
+      <span class="tip-icon"><i class="ph ph-compass"></i></span>
+      <p><strong>The North Star Check:</strong> In the Scribe Method, your North Star aligns your audience, your idea, and your objectives. When all three align, every word serves a purpose. This step alone has shaped 2,000+ books.</p>
+    </div>
+    <button class="btn btn-primary" onclick="goToRoadmap()" style="margin-top:16px;">See My Chapter Roadmap <i class="ph ph-arrow-right"></i></button>
+  </div>
+</section>
+
+<!-- ═══════════ STEP 9: CHAPTER ROADMAP ═══════════ -->
+<section class="step" id="step9">
+  <div class="step-inner">
+    <div style="text-align:center;margin-bottom:32px;">
+      <div class="q-badge"><i class="ph ph-list-numbers"></i> Scribe Method — Phase 3: Outlining</div>
+      <h2 style="font-family:var(--serif);font-size:2rem;font-weight:500;">Your Chapter Roadmap</h2>
+      <p style="color:var(--text-secondary);font-size:15px;margin-top:8px;">A chapter-by-chapter outline built from your content. Our Book Coaches typically spend 4 calls building this.</p>
+    </div>
+    <div id="introSection"></div>
+    <div id="chaptersSection"></div>
+    <div class="method-tip">
+      <span class="tip-icon"><i class="ph ph-map-trifold"></i></span>
+      <p><strong>The Book Roadmap:</strong> Phase 3 of the Scribe Method creates a detailed outline BEFORE writing begins. Each chapter serves a clear purpose, builds on the last, and maps to your stories and expertise.</p>
+    </div>
+    <button class="btn btn-primary" onclick="goToReport()" style="margin-top:16px;">See My Full Assessment <i class="ph ph-arrow-right"></i></button>
+  </div>
+</section>
+
+<!-- ═══════════ STEP 10: FULL REPORT ═══════════ -->
+<section class="step" id="step10">
+  <div class="step-inner">
+    <div style="text-align:center;margin-bottom:32px;">
+      <div class="q-badge"><i class="ph ph-chart-bar"></i> Your Scribe Method Assessment</div>
+      <h2 style="font-family:var(--serif);font-size:2rem;font-weight:500;" id="reportTitle"></h2>
+    </div>
+    <div id="coachSection"></div>
+    <h3 style="font-family:var(--serif);font-size:1.3rem;margin:32px 0 12px;">Your Scribe Score</h3>
+    <div class="score-row" id="scoreSection"></div>
+    <div id="coverageSection"></div>
+
+    <div class="cta-box">
+      <h2>You just experienced 10% of the Scribe Method.</h2>
+      <p>Imagine the other 90%.</p>
+      <div class="service-desc">
+        <strong>Scribe Professional ($56,000):</strong> We interview you, write your book, design the cover, publish, and market it. 2 hours/week for 9 months.<br><br>
+        <strong>Guided Author ($44,000):</strong> We coach you through writing your own book with a Book Coach, editor, and full publishing team. 1-2 hours/day for a year.
+      </div>
+      <div class="cta-btns">
+        <a href="https://scribemedia.com/consult" class="btn btn-primary" target="_blank"><i class="ph ph-calendar"></i> Book a Free Consultation</a>
+        <a href="https://scribemedia.com/scribe-method-book" class="btn btn-secondary" target="_blank"><i class="ph ph-book-open"></i> Get The Scribe Method Book</a>
+      </div>
+    </div>
+
+    <div class="fine-print">
+      This assessment was generated using the <a href="https://scribemedia.com/scribe-method-book">Scribe Method</a> framework, developed by Tucker Max and Zach Obront after helping 2,000+ authors publish their books.<br>
+      AI-assisted analysis powered by Claude. All insights are derived from your published content.
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <a href="https://scribemedia.com">&copy; Scribe Media</a><span class="sep">&middot;</span>
+  <a href="https://scribemedia.com/scribe-method-book">The Scribe Method</a><span class="sep">&middot;</span>
+  <a href="https://scribemedia.com/services">Our Services</a><span class="sep">&middot;</span>
+  <a href="https://scribemedia.com/consult">Free Consultation</a>
+</footer>
+
+<script>
+// ── STATE ──
+const S = {
+  name:'', email:'', url:'', linkedin:'',
+  feed: null, themes: null,
+  targetReader: '', champagneMoment: '', readerGain: '', objectives: [],
+  northstar: null, roadmap: null
+};
+
+// ── NAVIGATION ──
+let currentStep = 1;
+function goStep(n) {
+  document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+  const el = document.getElementById('step'+n);
+  if (el) { el.classList.add('active'); currentStep = n; }
+  document.getElementById('stepIndicator').innerHTML = `<span class="current">Step ${n}</span> of 10`;
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+function showErr(id, msg) { const e=document.getElementById(id); e.textContent=msg; e.classList.add('show'); }
+function hideErr(id) { document.getElementById(id).classList.remove('show'); }
+function esc(s) { if(!s) return ''; const d=document.createElement('div'); d.textContent=s; return d.innerHTML; }
+
+// ── STEP 1: INTAKE + FETCH + ANALYZE ──
+async function handleStep1(e) {
+  e.preventDefault();
+  if (document.getElementById('hp').value) return false;
+  hideErr('err1');
+  document.getElementById('btn1').disabled = true;
+
+  S.name = document.getElementById('fName').value.trim();
+  S.email = document.getElementById('fEmail').value.trim();
+  S.url = document.getElementById('fUrl').value.trim();
+  S.linkedin = document.getElementById('fLinkedin').value.trim();
+
+  goStep(2);
+  setLoading('Fetching your posts...', 1);
+
+  try {
+    // Fetch RSS
+    const rss = await api('/api/fetch-rss', { substackUrl: S.url });
+    S.feed = rss;
+    if (rss.postCount < 3) {
+      goStep(1);
+      showErr('err1', `We found only ${rss.postCount} post(s). The Scribe Method works best with at least 5 posts. Keep writing and come back!`);
+      document.getElementById('btn1').disabled = false;
+      return;
+    }
+
+    // Capture lead (fire and forget)
+    api('/api/capture-lead', { name:S.name, email:S.email, substackUrl:S.url, linkedinText:S.linkedin, postCount:rss.postCount }).catch(()=>{});
+
+    setLoading('Analyzing themes and perspectives...', 2);
+
+    // Get North Star directions (we'll use these to seed the questions)
+    const posts = rss.posts.map(p => ({ title:p.title, date:p.date, preview:p.preview, fullText:p.fullText }));
+    const ns = await api('/api/analyze', { mode:'northstar', posts, authorName:S.name, linkedinText:S.linkedin });
+    S.themes = ns.result;
+
+    setLoading('Preparing your North Star questions...', 3);
+    await sleep(800);
+
+    // Seed the Q1 options from AI analysis
+    seedReaderOptions(S.themes);
+    seedChampagneOptions(S.themes);
+    seedObjectiveOptions();
+    goStep(3);
+
+  } catch(err) {
+    goStep(1);
+    showErr('err1', err.message);
+    document.getElementById('btn1').disabled = false;
+  }
+}
+
+function setLoading(msg, dotNum) {
+  document.getElementById('loadingDetail').textContent = msg;
+  for(let i=1;i<=3;i++) {
+    const d = document.getElementById('dot'+i);
+    d.className = 'dot' + (i < dotNum ? ' done' : i === dotNum ? ' active' : '');
+  }
+}
+
+// ── SEED OPTIONS FROM AI ──
+function seedReaderOptions(data) {
+  const c = document.getElementById('readerOptions');
+  c.innerHTML = '';
+  const dirs = data.directions || [];
+  dirs.forEach((d,i) => {
+    c.innerHTML += `<div class="option-card" onclick="selectOption(this,'readerOptions')" data-value="${esc(d.targetReader)}">
+      <div class="radio"></div>
+      <div class="option-text"><h4>${esc(d.bookTitle)}</h4><p>${esc(d.targetReader)}</p></div>
+    </div>`;
+  });
+}
+function seedChampagneOptions(data) {
+  const c = document.getElementById('champagneOptions');
+  c.innerHTML = '';
+  const moments = [
+    { h: 'Authority & Speaking', d: 'I get invited to keynote a major conference because of the ideas in my book' },
+    { h: 'Business Growth', d: 'A dream client reaches out and says "I read your book — when can we start?"' },
+    { h: 'Cultural Impact', d: 'My book changes how people think about a topic I care deeply about' },
+    { h: 'Legacy', d: 'My children or grandchildren read this book and understand what I stood for' }
+  ];
+  moments.forEach(m => {
+    c.innerHTML += `<div class="option-card" onclick="selectOption(this,'champagneOptions')" data-value="${esc(m.d)}">
+      <div class="radio"></div>
+      <div class="option-text"><h4>${esc(m.h)}</h4><p>${esc(m.d)}</p></div>
+    </div>`;
+  });
+}
+function seedObjectiveOptions() {
+  const c = document.getElementById('objectiveOptions');
+  c.innerHTML = '';
+  const objs = [
+    { h: 'Establish authority', d: 'Become the go-to expert in my field' },
+    { h: 'Generate business', d: 'Attract clients, customers, or partnerships' },
+    { h: 'Share a mission', d: 'Spread an idea that matters to me' },
+    { h: 'Leave a legacy', d: 'Create something lasting that outlives me' }
+  ];
+  objs.forEach(o => {
+    c.innerHTML += `<div class="option-card" onclick="toggleOption(this)" data-value="${esc(o.h)}">
+      <div class="radio"></div>
+      <div class="option-text"><h4>${esc(o.h)}</h4><p>${esc(o.d)}</p></div>
+    </div>`;
+  });
+}
+
+function selectOption(el, containerId) {
+  document.querySelectorAll('#'+containerId+' .option-card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+}
+function toggleOption(el) {
+  el.classList.toggle('selected');
+}
+
+// ── NORTH STAR QUESTIONS ──
+function handleQ1() {
+  const selected = document.querySelector('#readerOptions .option-card.selected');
+  const custom = document.getElementById('customReader').value.trim();
+  S.targetReader = custom || (selected ? selected.dataset.value : '');
+  if (!S.targetReader) { S.targetReader = S.themes?.directions?.[0]?.targetReader || 'Professionals seeking a new perspective'; }
+  goStep(4);
+}
+function handleQ2() {
+  const selected = document.querySelector('#champagneOptions .option-card.selected');
+  const custom = document.getElementById('customChampagne').value.trim();
+  S.champagneMoment = custom || (selected ? selected.dataset.value : '');
+  if (!S.champagneMoment) { S.champagneMoment = 'My book changes how people think'; }
+  goStep(5);
+}
+function handleQ3() {
+  S.readerGain = document.getElementById('readerGain').value.trim();
+  if (!S.readerGain) { S.readerGain = 'A new framework for making better decisions'; }
+  goStep(6);
+}
+async function handleQ4() {
+  const selected = document.querySelectorAll('#objectiveOptions .option-card.selected');
+  S.objectives = Array.from(selected).map(c => c.dataset.value);
+  const custom = document.getElementById('customObjective').value.trim();
+  if (custom) S.objectives.push(custom);
+  if (!S.objectives.length) S.objectives = ['Share a mission'];
+
+  goStep(7);
+
+  try {
+    // Pick best direction based on user's answers
+    const bestDir = pickBestDirection(S.themes);
+
+    // Generate roadmap
+    document.getElementById('loadingDetail2').textContent = 'Building your chapter roadmap...';
+    const posts = S.feed.posts.map(p => ({ title:p.title, date:p.date, preview:p.preview, fullText:p.fullText }));
+
+    // Enrich the chosen direction with user's answers
+    const enrichedDir = {
+      ...bestDir,
+      targetReader: S.targetReader,
+      bookObjective: `Champagne Moment: ${S.champagneMoment}. Reader gains: ${S.readerGain}. Author objectives: ${S.objectives.join(', ')}.`
+    };
+
+    const rm = await api('/api/analyze', { mode:'roadmap', posts, authorName:S.name, chosenDirection: enrichedDir });
+    S.roadmap = rm.result;
+    S.northstar = enrichedDir;
+
+    // Update lead with scores
+    const scores = S.roadmap.scribeScore;
+    if (scores) {
+      api('/api/capture-lead', {
+        name:S.name, email:S.email, substackUrl:S.url,
+        scribeScore: scores.bookReadiness?.score || 0,
+        northStarSummary: enrichedDir.northStarStatement || '',
+        contentCoverage: S.roadmap.contentCoveragePercent || 0,
+        postCount: S.feed.postCount
+      }).catch(()=>{});
+    }
+
+    renderNorthStar(enrichedDir);
+    renderRoadmap(S.roadmap);
+    renderReport(S.roadmap);
+    goStep(8);
+
+  } catch(err) {
+    goStep(6);
+    alert('Something went wrong. Please try again.');
+  }
+}
+
+function pickBestDirection(data) {
+  const dirs = data?.directions || [];
+  // Simple heuristic: pick the one whose targetReader most overlaps with user's chosen reader
+  if (!dirs.length) return { bookTitle:'Your Book', subtitle:'', targetReader:S.targetReader, authorPositioning:'', bookObjective:'', northStarStatement:'' };
+  return dirs[0]; // Default to recommended direction
+}
+
+// ── RENDER NORTH STAR ──
+function renderNorthStar(dir) {
+  document.getElementById('nsBookTitle').textContent = dir.bookTitle || 'Your Book';
+  document.getElementById('nsBookSubtitle').textContent = dir.subtitle || '';
+  document.getElementById('nsStatement').textContent = dir.northStarStatement || `A book for ${S.targetReader} that will ${S.readerGain}`;
+
+  const det = document.getElementById('nsDetails');
+  det.innerHTML = `
+    <div class="ns-detail-card"><div class="ns-label">Target Reader</div><p>${esc(S.targetReader)}</p></div>
+    <div class="ns-detail-card"><div class="ns-label">Champagne Moment</div><p>${esc(S.champagneMoment)}</p></div>
+    <div class="ns-detail-card"><div class="ns-label">Reader's Transformation</div><p>${esc(S.readerGain || 'A new way of seeing the world')}</p></div>
+    <div class="ns-detail-card"><div class="ns-label">Your Objectives</div><p>${esc(S.objectives.join(', '))}</p></div>
+    <div class="ns-detail-card"><div class="ns-label">Why You</div><p>${esc(dir.authorPositioning)}</p></div>
+  `;
+}
+
+// ── RENDER ROADMAP ──
+function renderRoadmap(data) {
+  // Intro
+  const intro = document.getElementById('introSection');
+  if (data.introduction) {
+    intro.innerHTML = `<div style="background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:24px;margin-bottom:24px;">
+      <div style="font-size:10px;text-transform:uppercase;letter-spacing:2px;color:var(--gold);margin-bottom:10px;">Proposed Opening</div>
+      <p style="font-family:var(--serif);font-size:1.1rem;font-style:italic;line-height:1.7;margin-bottom:16px;">${esc(data.introduction.hook)}</p>
+      <p style="font-size:14px;color:var(--text-secondary);border-top:1px solid var(--border);padding-top:12px;"><strong style="color:var(--gold);">Core Premise:</strong> ${esc(data.introduction.premise)}</p>
+    </div>`;
+  }
+  // Chapters
+  const ch = document.getElementById('chaptersSection');
+  ch.innerHTML = '';
+  (data.chapters || []).forEach(c => {
+    const tags = (c.existingPosts||[]).map(p=>`<span class="ch-tag ch-tag--existing">"${esc(p)}"</span>`).join('');
+    const newTag = c.hasExistingContent===false ? '<span class="ch-tag ch-tag--new">New Content Needed</span>' : '';
+    ch.innerHTML += `<div class="chapter-card">
+      <div class="ch-num">Chapter ${c.number}</div>
+      <div class="ch-title">${esc(c.title)}</div>
+      <div class="ch-summary">${esc(c.summary)}</div>
+      <div class="ch-tags">${tags}${newTag}</div>
+      ${c.newContentNeeded ? `<p style="font-size:12px;color:var(--text-dim);margin-top:10px;"><strong>New:</strong> ${esc(c.newContentNeeded)}</p>` : ''}
+    </div>`;
+  });
+}
+
+function goToRoadmap() { goStep(9); }
+
+// ── RENDER REPORT ──
+function renderReport(data) {
+  document.getElementById('reportTitle').textContent = `${S.name}'s Book Assessment`;
+
+  // Coach note
+  const cn = document.getElementById('coachSection');
+  if (data.coachNote) {
+    cn.innerHTML = `<div class="coach-note"><p>${esc(data.coachNote)}</p><span class="sig">— Your Scribe Book Coach</span></div>`;
+  }
+
+  // Scores
+  const sg = document.getElementById('scoreSection');
+  sg.innerHTML = '';
+  const dims = [
+    {k:'contentDepth',l:'Content Depth'}, {k:'audienceClarity',l:'Audience Clarity'},
+    {k:'uniquePerspective',l:'Unique Perspective'}, {k:'bookReadiness',l:'Book Readiness'}
+  ];
+  const scores = data.scribeScore || {};
+  dims.forEach(d => {
+    const s = scores[d.k] || {score:'?',explanation:''};
+    sg.innerHTML += `<div class="score-card"><div class="score-num">${s.score}</div><div class="score-name">${d.l}</div><div class="score-desc">${esc(s.explanation)}</div></div>`;
+  });
+
+  // Coverage
+  const cv = document.getElementById('coverageSection');
+  const pct = data.contentCoveragePercent || 0;
+  cv.innerHTML = `<div class="coverage">
+    <div class="coverage-header"><span>Content Already Written</span><span>${pct}%</span></div>
+    <div class="coverage-bar"><div class="coverage-fill" id="covFill" style="width:0%"></div></div>
+    <div class="coverage-meta"><span>${S.feed?.postCount||0} posts analyzed</span><span>${(data.chapters||[]).length} chapters mapped</span></div>
+  </div>`;
+  setTimeout(() => { document.getElementById('covFill').style.width = pct+'%'; }, 200);
+}
+
+function goToReport() { goStep(10); }
+
+// ── UTILS ──
+async function api(url, body) {
+  const r = await fetch(url, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body) });
+  const d = await r.json();
+  if (!r.ok) throw new Error(d.error || 'Request failed');
+  return d;
+}
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+</script>
+</body>
+</html>
