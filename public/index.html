@@ -9,6 +9,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.0.3/src/regular/style.css">
+  <link rel="stylesheet" href="/shared/layout.css">
   <style>
     :root {
       --gold: #C9A84C;
@@ -34,15 +35,14 @@
     html { scroll-behavior: smooth; }
     body { font-family: var(--sans); background: var(--bg); color: var(--text); line-height: 1.6; min-height: 100vh; -webkit-font-smoothing: antialiased; }
 
-    /* ── HEADER ── */
-    .header { position: fixed; top: 0; left: 0; right: 0; z-index: 100; background: rgba(13,13,13,0.9); backdrop-filter: blur(20px); border-bottom: 1px solid var(--border); padding: 14px 32px; display: flex; align-items: center; justify-content: space-between; }
-    .header img { height: 36px; }
-    .header-right { display: flex; align-items: center; gap: 16px; }
-    .step-indicator { font-size: 11px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1.5px; }
+    /* ── OVERRIDE shared layout for dark bg ── */
+    body { background: var(--bg) !important; }
+    .navbar { background: linear-gradient(180deg, #0D0D0D 0%, rgba(13,13,13,0.97) 100%) !important; }
+    .step-indicator { font-size: 11px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1.5px; position: fixed; top: 30px; right: 32px; z-index: 1001; }
     .step-indicator .current { color: var(--gold); }
 
     /* ── FULL-SCREEN STEPS ── */
-    .step { display: none; min-height: 100vh; padding: 100px 24px 60px; }
+    .step { display: none; min-height: 100vh; padding: 120px 24px 60px; }
     .step.active { display: flex; align-items: center; justify-content: center; animation: stepIn 0.6s var(--ease); }
     @keyframes stepIn { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
     .step-inner { max-width: 640px; width: 100%; }
@@ -195,13 +195,8 @@
 </head>
 <body>
 
-<!-- HEADER -->
-<header class="header">
-  <a href="https://scribemedia.com"><img src="https://scribemedia.com/hubfs/Scribe%20Logo_Full%20Color_OnDark.png" alt="Scribe Media" height="36"></a>
-  <div class="header-right">
-    <div class="step-indicator" id="stepIndicator"><span class="current">Step 1</span> of 8</div>
-  </div>
-</header>
+<!-- STEP INDICATOR (floats over shared navbar) -->
+<div class="step-indicator" id="stepIndicator"><span class="current">Step 1</span> of 8</div>
 
 <!-- ═══════════ STEP 1: HERO ═══════════ -->
 <section class="step active" id="step1">
@@ -407,6 +402,7 @@
   <a href="https://scribemedia.com/consult">Free Consultation</a>
 </footer>
 
+<script src="/shared/layout.js"></script>
 <script>
 // ── STATE ──
 const S = {
