@@ -9,6 +9,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.0.3/src/regular/style.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.2/jspdf.umd.min.js"></script>
   <link rel="stylesheet" href="/shared/layout.css">
   <style>
     :root {
@@ -189,6 +190,30 @@
       .step { padding: 100px 20px 40px; }
       .hero-form { padding: 24px; }
     }
+
+    /* ── EDITABLE FIELDS ── */
+    .editable { position: relative; cursor: pointer; transition: all 0.2s; border: 1px solid transparent; border-radius: 8px; padding: 4px 8px; margin: -4px -8px; }
+    .editable:hover { border-color: var(--gold-dim); background: rgba(201,168,76,0.04); }
+    .editable:hover::after { content: 'Click to edit'; position: absolute; top: -20px; right: 8px; font-size: 10px; color: var(--gold); font-family: var(--sans); font-style: normal; font-weight: 500; text-transform: uppercase; letter-spacing: 1px; }
+    .editable-input { width: 100%; background: var(--bg-input); border: 2px solid var(--gold); border-radius: 8px; color: var(--text); font-family: inherit; font-size: inherit; padding: 8px 12px; outline: none; }
+    .editable-input:focus { box-shadow: 0 0 0 3px var(--gold-dim); }
+    .edit-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 8px; }
+    .edit-actions button { padding: 6px 16px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; border: none; font-family: var(--sans); }
+    .edit-save { background: var(--gold); color: #111; }
+    .edit-cancel { background: var(--bg-elevated); color: var(--text-secondary); border: 1px solid var(--border) !important; }
+
+    /* ── ACTION BUTTONS ROW ── */
+    .action-row { display: flex; gap: 12px; margin: 24px 0; flex-wrap: wrap; }
+    .action-row .btn { flex: 1; min-width: 180px; }
+    .btn-download { background: var(--bg-card); color: var(--gold); border: 1px solid var(--gold); }
+    .btn-download:hover { background: var(--gold-dim); }
+    .btn-email { background: var(--bg-card); color: var(--text); border: 1px solid var(--border); }
+    .btn-email:hover { border-color: var(--gold); color: var(--gold); }
+    .btn-email.sent { background: rgba(92,184,92,0.1); border-color: var(--green); color: var(--green); pointer-events: none; }
+
+    /* ── TOAST ── */
+    .toast { position: fixed; bottom: 32px; left: 50%; transform: translateX(-50%) translateY(100px); background: var(--bg-card); border: 1px solid var(--gold); border-radius: 12px; padding: 14px 24px; font-size: 14px; color: var(--gold); z-index: 2000; transition: transform 0.4s var(--ease); box-shadow: 0 8px 32px rgba(0,0,0,0.5); }
+    .toast.show { transform: translateX(-50%) translateY(0); }
 
     /* ── HONEYPOT ── */
     .hp { position: absolute; left: -9999px; top: -9999px; }
@@ -412,11 +437,18 @@
   <div class="step-inner">
     <div style="text-align:center;">
       <div class="q-badge"><i class="ph ph-star"></i> Your North Star</div>
-      <h2 style="font-family:var(--serif);font-size:2.2rem;font-weight:500;margin-bottom:8px;" id="nsBookTitle"></h2>
-      <p style="font-family:var(--serif);font-style:italic;color:var(--text-secondary);font-size:1.1rem;margin-bottom:24px;" id="nsBookSubtitle"></p>
+      <h2 class="editable" onclick="editField(this,'bookTitle')" style="font-family:var(--serif);font-size:2.2rem;font-weight:500;margin-bottom:8px;" id="nsBookTitle"></h2>
+      <p class="editable" onclick="editField(this,'bookSubtitle')" style="font-family:var(--serif);font-style:italic;color:var(--text-secondary);font-size:1.1rem;margin-bottom:24px;" id="nsBookSubtitle"></p>
     </div>
     <div class="ns-statement" id="nsStatement"></div>
     <div class="ns-details" id="nsDetails"></div>
+
+    <!-- ACTION BUTTONS -->
+    <div class="action-row">
+      <button class="btn btn-download" onclick="downloadPDF()"><i class="ph ph-file-pdf"></i> Download PDF</button>
+      <button class="btn btn-email" id="btnEmail" onclick="emailNorthStar()"><i class="ph ph-envelope"></i> Email to Myself</button>
+    </div>
+
     <div class="method-tip">
       <span class="tip-icon"><i class="ph ph-compass"></i></span>
       <p><strong>The North Star Check (Scribe Method, Ch. 9):</strong> Your North Star aligns your audience, your idea, and your objectives. When all three align, every word serves a purpose. This step alone has shaped 2,000+ books.</p>
@@ -474,6 +506,9 @@
     </div>
   </div>
 </section>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
 
 <!-- FOOTER -->
 <footer class="footer">
@@ -794,8 +829,8 @@ function renderRoadmap(data) {
     const newTag = c.hasExistingContent===false ? '<span class="ch-tag ch-tag--new">New Content Needed</span>' : '';
     ch.innerHTML += `<div class="chapter-card">
       <div class="ch-num">Chapter ${c.number}</div>
-      <div class="ch-title">${esc(c.title)}</div>
-      <div class="ch-summary">${esc(c.summary)}</div>
+      <div class="ch-title editable" onclick="editChapter(this,${c.number - 1},'title')">${esc(c.title)}</div>
+      <div class="ch-summary editable" onclick="editChapter(this,${c.number - 1},'summary')">${esc(c.summary)}</div>
       <div class="ch-tags">${tags}${newTag}</div>
       ${c.newContentNeeded ? `<p style="font-size:12px;color:var(--text-dim);margin-top:10px;"><strong>New:</strong> ${esc(c.newContentNeeded)}</p>` : ''}
     </div>`;
@@ -831,6 +866,223 @@ function renderReport(data) {
     <div class="coverage-meta"><span>${S.feed?.postCount||0} posts analyzed</span><span>${(data.chapters||[]).length} chapters mapped</span></div>
   </div>`;
   setTimeout(() => { document.getElementById('covFill').style.width = pct+'%'; }, 200);
+}
+
+// ── INLINE EDITING ──
+function editField(el, field) {
+  if (el.querySelector('.editable-input')) return; // already editing
+  const current = el.textContent;
+  const isTitle = field === 'bookTitle';
+  const tag = isTitle ? 'input' : 'input';
+  el.classList.remove('editable');
+  el.innerHTML = `<${tag} class="editable-input" value="${esc(current)}" style="font-family:var(--serif);font-size:${isTitle ? '2rem' : '1.1rem'};text-align:center;${field === 'bookSubtitle' ? 'font-style:italic;color:var(--text-secondary);' : ''}">
+    <div class="edit-actions">
+      <button class="edit-cancel" onclick="cancelEdit(this.closest('[id]'),'${field}')">Cancel</button>
+      <button class="edit-save" onclick="saveEdit(this.closest('[id]'),'${field}')">Save</button>
+    </div>`;
+  el.querySelector('.editable-input').focus();
+  el.querySelector('.editable-input').select();
+}
+
+function saveEdit(el, field) {
+  const val = el.querySelector('.editable-input').value.trim();
+  if (!val) return;
+  if (field === 'bookTitle') { S.northstar.bookTitle = val; }
+  if (field === 'bookSubtitle') { S.northstar.subtitle = val; }
+  el.textContent = val;
+  el.classList.add('editable');
+  el.setAttribute('onclick', `editField(this,'${field}')`);
+  showToast('Updated! Your changes will be included in the PDF.');
+}
+
+function cancelEdit(el, field) {
+  const val = field === 'bookTitle' ? (S.northstar?.bookTitle || 'Your Book') : (S.northstar?.subtitle || '');
+  el.textContent = val;
+  el.classList.add('editable');
+  el.setAttribute('onclick', `editField(this,'${field}')`);
+}
+
+function editChapter(el, idx, field) {
+  if (el.querySelector('.editable-input')) return;
+  const current = el.textContent;
+  const isTitle = field === 'title';
+  el.classList.remove('editable');
+  if (isTitle) {
+    el.innerHTML = `<input class="editable-input" value="${esc(current)}" style="font-family:var(--serif);font-size:1.2rem;">
+      <div class="edit-actions">
+        <button class="edit-cancel" onclick="cancelChapterEdit(this.parentElement.parentElement,${idx},'${field}')">Cancel</button>
+        <button class="edit-save" onclick="saveChapterEdit(this.parentElement.parentElement,${idx},'${field}')">Save</button>
+      </div>`;
+  } else {
+    el.innerHTML = `<textarea class="editable-input" rows="3" style="font-size:14px;">${esc(current)}</textarea>
+      <div class="edit-actions">
+        <button class="edit-cancel" onclick="cancelChapterEdit(this.parentElement.parentElement,${idx},'${field}')">Cancel</button>
+        <button class="edit-save" onclick="saveChapterEdit(this.parentElement.parentElement,${idx},'${field}')">Save</button>
+      </div>`;
+  }
+  el.querySelector('.editable-input').focus();
+}
+
+function saveChapterEdit(el, idx, field) {
+  const val = el.querySelector('.editable-input').value.trim();
+  if (!val || !S.roadmap?.chapters?.[idx]) return;
+  S.roadmap.chapters[idx][field] = val;
+  el.textContent = val;
+  el.classList.add('editable');
+  el.setAttribute('onclick', `editChapter(this,${idx},'${field}')`);
+  showToast('Chapter updated!');
+}
+
+function cancelChapterEdit(el, idx, field) {
+  const val = S.roadmap?.chapters?.[idx]?.[field] || '';
+  el.textContent = val;
+  el.classList.add('editable');
+  el.setAttribute('onclick', `editChapter(this,${idx},'${field}')`);
+}
+
+// ── TOAST ──
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// ── PDF DOWNLOAD ──
+function downloadPDF() {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ unit: 'mm', format: 'a4' });
+  const w = doc.internal.pageSize.getWidth();
+  const margin = 20;
+  const maxW = w - margin * 2;
+  let y = 25;
+
+  // Helper
+  function addText(text, size, color, opts = {}) {
+    doc.setFontSize(size);
+    doc.setTextColor(...color);
+    if (opts.bold) doc.setFont('helvetica', 'bold');
+    else if (opts.italic) doc.setFont('helvetica', 'italic');
+    else doc.setFont('helvetica', 'normal');
+    const lines = doc.splitTextToSize(text, opts.maxW || maxW);
+    if (y + lines.length * size * 0.5 > 270) { doc.addPage(); y = 25; }
+    doc.text(lines, opts.center ? w / 2 : margin, y, opts.center ? { align: 'center' } : {});
+    y += lines.length * size * 0.45 + (opts.gap || 4);
+  }
+
+  function addLine() {
+    doc.setDrawColor(201, 168, 76);
+    doc.setLineWidth(0.3);
+    doc.line(margin, y, w - margin, y);
+    y += 6;
+  }
+
+  // Header
+  doc.setFillColor(13, 13, 13);
+  doc.rect(0, 0, w, 297, 'F');
+  addText('SCRIBE MEDIA', 8, [201, 168, 76], { center: true, gap: 2 });
+  addText('YOUR NORTH STAR DOCUMENT', 8, [160, 160, 160], { center: true, gap: 10 });
+
+  // Title
+  const title = S.northstar?.bookTitle || 'Your Book';
+  addText(title, 22, [240, 240, 240], { center: true, bold: true, gap: 4 });
+  const subtitle = S.northstar?.subtitle || '';
+  if (subtitle) addText(subtitle, 13, [160, 160, 160], { center: true, italic: true, gap: 8 });
+  addLine();
+
+  // North Star Statement
+  const stmt = document.getElementById('nsStatement')?.textContent || '';
+  if (stmt) {
+    addText(stmt, 11, [201, 168, 76], { italic: true, gap: 10 });
+    addLine();
+  }
+
+  // Detail sections
+  const sections = [
+    ['YOUR ONE READER', S.targetReader],
+    ['CHAMPAGNE MOMENT', S.champagneMoment],
+    ["READER'S TRANSFORMATION", S.readerGain],
+    ['YOUR SELFISH REASON', S.selfishReason],
+    ['YOUR UNSELFISH REASON', S.unselfishReason],
+    ['COCKTAIL PARTY PITCH', S.cocktailPitch],
+    ['WHY YOU', S.northstar?.authorPositioning]
+  ];
+  sections.forEach(([label, val]) => {
+    if (!val) return;
+    addText(label, 8, [201, 168, 76], { bold: true, gap: 2 });
+    addText(val, 10, [200, 200, 200], { gap: 8 });
+  });
+
+  // Chapters
+  if (S.roadmap?.chapters?.length) {
+    doc.addPage();
+    y = 25;
+    addText('CHAPTER ROADMAP', 8, [201, 168, 76], { center: true, bold: true, gap: 10 });
+    S.roadmap.chapters.forEach(ch => {
+      if (y > 250) { doc.addPage(); y = 25; }
+      addText(`Chapter ${ch.number}: ${ch.title}`, 12, [240, 240, 240], { bold: true, gap: 2 });
+      addText(ch.summary, 9, [160, 160, 160], { gap: 2 });
+      if (ch.existingPosts?.length) {
+        addText('Based on: ' + ch.existingPosts.map(p => `"${p}"`).join(', '), 8, [201, 168, 76], { italic: true, gap: 2 });
+      }
+      if (ch.hasExistingContent === false) {
+        addText('New content needed', 8, [217, 83, 79], { gap: 2 });
+      }
+      y += 4;
+    });
+  }
+
+  // Coach note
+  if (S.roadmap?.coachNote) {
+    if (y > 230) { doc.addPage(); y = 25; }
+    addLine();
+    addText('FROM YOUR SCRIBE BOOK COACH', 8, [201, 168, 76], { bold: true, gap: 2 });
+    addText(S.roadmap.coachNote, 10, [200, 200, 200], { italic: true, gap: 8 });
+  }
+
+  // Footer
+  if (y > 260) { doc.addPage(); y = 25; }
+  y = 275;
+  addText('Generated using the Scribe Method  |  scribemedia.com', 7, [100, 100, 100], { center: true });
+
+  doc.save(`${title.replace(/[^a-zA-Z0-9 ]/g, '').replace(/\s+/g, '-')}-North-Star.pdf`);
+  showToast('PDF downloaded!');
+}
+
+// ── EMAIL NORTH STAR ──
+async function emailNorthStar() {
+  const btn = document.getElementById('btnEmail');
+  btn.disabled = true;
+  btn.innerHTML = '<i class="ph ph-circle-notch ph-spin"></i> Sending...';
+
+  try {
+    const payload = {
+      email: S.email,
+      name: S.name,
+      northstar: {
+        bookTitle: S.northstar?.bookTitle || 'Your Book',
+        bookSubtitle: S.northstar?.subtitle || '',
+        northStarStatement: document.getElementById('nsStatement')?.textContent || '',
+        targetReader: S.targetReader,
+        champagneMoment: S.champagneMoment,
+        readerGain: S.readerGain,
+        selfishReason: S.selfishReason,
+        unselfishReason: S.unselfishReason,
+        cocktailPitch: S.cocktailPitch,
+        authorPositioning: S.northstar?.authorPositioning || '',
+        chapters: S.roadmap?.chapters || [],
+        coachNote: S.roadmap?.coachNote || ''
+      }
+    };
+    await api('/api/send-northstar', payload);
+    btn.innerHTML = '<i class="ph ph-check"></i> Sent!';
+    btn.classList.add('sent');
+    showToast(`North Star sent to ${S.email}`);
+  } catch (err) {
+    btn.disabled = false;
+    btn.innerHTML = '<i class="ph ph-envelope"></i> Email to Myself';
+    showToast('Email failed — try downloading the PDF instead.');
+  }
 }
 
 // ── UTILS ──
